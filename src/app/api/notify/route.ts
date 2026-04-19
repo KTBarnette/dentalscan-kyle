@@ -15,11 +15,30 @@ const prisma = new PrismaClient();
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { scanId, status } = body;
+    const status =
+      body && typeof body === "object" && "status" in body
+        ? (body as { status?: unknown }).status
+        : undefined;
+
+    console.log("[notify] request received", { status });
+
+    if (!body || typeof body !== "object") {
+      return NextResponse.json(
+        { success: false, error: "Request body is required" },
+        { status: 400 }
+      );
+    }
+
+    if (typeof status !== "string") {
+      return NextResponse.json(
+        { success: false, error: 'Invalid input: "status" must be a string' },
+        { status: 400 }
+      );
+    }
 
     if (status !== "completed") {
       return NextResponse.json(
-        { error: 'Invalid status. Expected "completed"' },
+        { success: false, error: 'Invalid status: expected "completed"' },
         { status: 400 }
       );
     }
@@ -30,11 +49,18 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log(`[NOTIFY] Notification created for scan ${scanId}`);
+    console.log("[notify] notification created", { notificationId: notification.id });
 
-    return NextResponse.json(notification);
+    return NextResponse.json({ success: true, notification }, { status: 200 });
   } catch (err) {
-    console.error("Notification API Error:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    const error = err as { message?: string; stack?: string };
+    console.error("[notify] error", {
+      message: error.message,
+      stack: error.stack,
+    });
+    return NextResponse.json(
+      { success: false, error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
