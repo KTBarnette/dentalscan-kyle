@@ -17,6 +17,9 @@ export default function ScanningFlow() {
   const [camReady, setCamReady] = useState(false);
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
+  const [message, setMessage] = useState("");
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [messageStatus, setMessageStatus] = useState<"idle" | "success" | "error">("idle");
   const guardrailState: "good" | "warning" | "bad" = camReady ? "good" : "warning";
   const guardrailBorderColor =
     guardrailState === "good"
@@ -76,6 +79,38 @@ export default function ScanningFlow() {
       setCurrentStep((prev) => prev + 1);
     }
   }, []);
+
+  const handleSendMessage = useCallback(async () => {
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage || isSendingMessage) {
+      return;
+    }
+
+    setIsSendingMessage(true);
+    setMessageStatus("idle");
+
+    try {
+      const response = await fetch("/api/messaging", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: trimmedMessage }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
+
+      setMessage("");
+      setMessageStatus("success");
+    } catch (error) {
+      console.error("Failed to send message", error);
+      setMessageStatus("error");
+    } finally {
+      setIsSendingMessage(false);
+    }
+  }, [isSendingMessage, message]);
 
   return (
     <div className="flex flex-col items-center bg-black min-h-screen text-white">
@@ -158,6 +193,34 @@ export default function ScanningFlow() {
             )}
           </div>
         ))}
+      </div>
+
+      <div className="w-full max-w-md px-4 pb-8">
+        <div className="border border-zinc-800 rounded-lg p-4 bg-zinc-950">
+          <p className="text-sm font-medium mb-2">Quick Message</p>
+          <textarea
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            placeholder="Send a message to the clinic"
+            rows={3}
+            className="w-full rounded-md border border-zinc-700 bg-zinc-900 p-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <button
+              onClick={handleSendMessage}
+              disabled={isSendingMessage || message.trim().length === 0}
+              className="rounded-md border border-blue-500 bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isSendingMessage ? "Sending..." : "Send"}
+            </button>
+            {messageStatus === "success" && (
+              <span className="text-xs text-green-400">Message sent</span>
+            )}
+            {messageStatus === "error" && (
+              <span className="text-xs text-red-400">Unable to send. Try again.</span>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

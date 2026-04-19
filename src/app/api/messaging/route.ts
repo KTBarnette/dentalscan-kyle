@@ -26,17 +26,47 @@ export async function GET(req: Request) {
   return NextResponse.json({ messages });
 }
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
-    const { threadId, content, sender } = body;
+    const body = await request.json();
+    const content =
+      body && typeof body === "object" && "content" in body
+        ? (body as { content?: unknown }).content
+        : undefined;
 
-    // TODO: Save message to database
-    console.log(`[STUB] New message in thread ${threadId}: ${content}`);
+    if (typeof content !== "string" || content.trim().length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid input: "content" is required' },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json({ ok: true });
+    const defaultPatientId = "default-patient";
+
+    let thread = await prisma.thread.findFirst({
+      where: { patientId: defaultPatientId },
+    });
+
+    if (!thread) {
+      thread = await prisma.thread.create({
+        data: { patientId: defaultPatientId },
+      });
+    }
+
+    const message = await prisma.message.create({
+      data: {
+        content: content.trim(),
+        threadId: thread.id,
+        sender: "patient",
+      },
+    });
+
+    return NextResponse.json({ success: true, message }, { status: 200 });
   } catch (err) {
     console.error("Messaging API Error:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

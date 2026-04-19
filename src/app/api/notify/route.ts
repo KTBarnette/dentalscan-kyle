@@ -45,7 +45,9 @@ export async function POST(request: Request) {
 
     const notification = await prisma.notification.create({
       data: {
+        title: "Scan Completed",
         message: "New scan uploaded — ready for review",
+        userId: "demo-user",
       },
     });
 
