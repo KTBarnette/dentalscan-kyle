@@ -12,21 +12,27 @@ const prisma = new PrismaClient();
  * 3. Bonus: Handle potential errors (e.g., database connection issues).
  */
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
+    const body = await request.json();
     const { scanId, status } = body;
 
-    if (status === "completed") {
-      // TODO: Implement the notification creation logic here
-      // example: await prisma.notification.create({ ... })
-      
-      console.log(`[STUB] Notification triggered for scan ${scanId}`);
-      
-      return NextResponse.json({ ok: true, message: "Notification triggered" });
+    if (status !== "completed") {
+      return NextResponse.json(
+        { error: 'Invalid status. Expected "completed"' },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json({ ok: true });
+    const notification = await prisma.notification.create({
+      data: {
+        message: "New scan uploaded — ready for review",
+      },
+    });
+
+    console.log(`[NOTIFY] Notification created for scan ${scanId}`);
+
+    return NextResponse.json(notification);
   } catch (err) {
     console.error("Notification API Error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
