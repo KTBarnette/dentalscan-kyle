@@ -25,12 +25,16 @@ export default function ScanningFlow() {
         ? "border-yellow-400"
         : "border-red-500";
   const guardrailScaleClass = guardrailState === "good" ? "scale-100" : "scale-95";
+  const guardrailOuterRingClass =
+    guardrailState === "good"
+      ? "scale-105 opacity-70 border-green-300/70"
+      : "scale-100 opacity-0 border-transparent";
   const guardrailInstructionText =
     guardrailState === "good"
       ? "Hold steady — capturing soon"
       : guardrailState === "warning"
         ? "Center your face and hold steady"
-        : "Move closer and align your face within the circle";
+        : "Move closer if your face looks small, or move farther and center if it is cropped";
 
   const VIEWS = [
     { label: "Front View", instruction: "Smile and look straight at the camera." },
@@ -94,8 +98,16 @@ export default function ScanningFlow() {
             
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
               <div
-                className={`h-52 w-52 sm:h-60 sm:w-60 md:h-72 md:w-72 rounded-full border-4 ${guardrailBorderColor} opacity-80 ${guardrailScaleClass} transition-all duration-300`}
-              />
+                className={`relative h-52 w-52 sm:h-60 sm:w-60 md:h-72 md:w-72 rounded-full ${guardrailScaleClass} transition-all duration-300`}
+              >
+                <div className="absolute inset-0 rounded-full shadow-[0_0_0_9999px_rgba(0,0,0,0.3)]" />
+                <div
+                  className={`absolute -inset-2 rounded-full border ${guardrailOuterRingClass} transition-all duration-500 ease-out`}
+                />
+                <div
+                  className={`absolute inset-0 rounded-full border-4 ${guardrailBorderColor} opacity-80`}
+                />
+              </div>
             </div>
 
             <div className="absolute bottom-24 left-0 right-0 text-center pointer-events-none">
