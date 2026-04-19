@@ -20,10 +20,11 @@ export default function ScanningFlow() {
   const guardrailState: "good" | "warning" | "bad" = camReady ? "good" : "warning";
   const guardrailBorderColor =
     guardrailState === "good"
-      ? "border-green-500"
+      ? "border-green-400"
       : guardrailState === "warning"
         ? "border-yellow-400"
         : "border-red-500";
+  const guardrailScaleClass = guardrailState === "good" ? "scale-100" : "scale-95";
 
   const VIEWS = [
     { label: "Front View", instruction: "Smile and look straight at the camera." },
@@ -87,7 +88,7 @@ export default function ScanningFlow() {
             
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
               <div
-                className={`h-48 w-48 sm:h-56 sm:w-56 md:h-64 md:w-64 rounded-full border-4 ${guardrailBorderColor} transition-all duration-300`}
+                className={`h-52 w-52 sm:h-60 sm:w-60 md:h-72 md:w-72 rounded-full border-4 ${guardrailBorderColor} opacity-80 ${guardrailScaleClass} transition-all duration-300`}
               />
             </div>
 
