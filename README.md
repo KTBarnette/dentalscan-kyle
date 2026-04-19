@@ -1,44 +1,73 @@
-# DentalScan AI - Engineering Challenge Starter Kit
+# DentalScan AI – Engineering Challenge Submission  
+Kyle Barnette
 
-Welcome to the DentalScan Engineering Challenge! This repository is a "lite" version of our production environment. Your goal is to enhance this codebase according to the requirements in the [Assignment PDF](../docs/assignment.md).
+---
 
-## 🚀 Getting Started
+## 🧠 Overview
+This project enhances the DentalScan scanning experience across frontend, backend, and full-stack features. The focus was on improving scan guidance, enabling reliable notification handling, and supporting post-scan communication between patients and clinicians.
 
-1. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
-2. **Setup Database**:
-   ```bash
-   npx prisma generate
-   ```
-3. **Run Development Server**:
-   ```bash
-   npm run dev
-   ```
+> Note: All implementation work was completed inside the `starter-kit` directory.
 
-## 🦷 The Tasks
+---
 
-### 1. Discovery (Explore First)
-Visit [https://www.dentalscan.us/](https://www.dentalscan.us/) to understand the core product. Experience how we take different angles of images and how they are processed.
+## 🚀 Features Implemented
 
-### 2. Frontend: Scan Enhancement
-Improve `src/components/ScanningFlow.tsx`. 
-- **Goal**: Implement a "Mouth Guide" overlay that helps users center their face correctly.
-- **Bonus**: Add real-time visual feedback based on the simulated `guardrail` state.
+### 1. Scan Enhancement (Frontend)
+- Added a responsive, centered “Mouth Guide” overlay in the camera view
+- Implemented dynamic visual feedback (red → amber → green) using a simulated guardrail state
+- Designed to minimize unnecessary React re-renders for smooth camera performance
 
-### 3. Backend: Notifications
-Work on `src/app/api/notify/route.ts`.
-- **Goal**: Implement a trigger that records a `Notification` in the database when a scan is finalized.
+### 2. Notification System (Backend)
+- Created a `Notification` Prisma model with read/unread state
+- Implemented a trigger on scan completion
+- Built an API route to persist notifications
+- Designed async handling to avoid blocking scan upload flow
 
-### 4. Full-Stack: Messaging
-Implement a messaging sidebar on the result page.
-- **Goal**: Allow clinicians and patients to communicate.
-- **Models**: See `prisma/schema.prisma` for `Thread` and `Message`.
+### 3. Patient-Dentist Messaging (Full-Stack)
+- Implemented a messaging sidebar on the results page
+- Built API routes for message persistence using Thread/Message models
+- Added optimistic UI updates for improved user experience
 
-## 📝 Submission
-- Ensure your code is clean and modular.
-- Include a 2-minute Loom video demoing your changes.
-- Email your repo link to `rachana@dentalscan.us`.
+---
 
-**Happy Coding!**
+## 🧩 Design Decisions
+- Used simulated guardrail logic to provide responsive feedback without heavy real-time processing
+- Focused on UX clarity and performance during camera usage
+- Prioritized simple, reliable backend flows over external integrations
+
+---
+
+## ⚠️ Tradeoffs
+- Real camera-based detection is not implemented (out of scope)
+- Notification system uses a simulated trigger
+- Messaging is not real-time, but structured for extension
+
+---
+
+## 🔮 Future Improvements
+- Real-time scan quality detection using camera input
+- Lighting and positioning feedback for users
+- Onboarding/tutorial flow
+- Real-time messaging (WebSockets)
+
+---
+
+## 🛠️ Getting Started
+
+1. Clone the repository:
+```bash
+git clone <your-repo-link>
+cd <repo-name>/starter-kit
+Install dependencies:
+npm install
+Setup Prisma:
+npx prisma generate
+
+(Optional) View database:
+
+npx prisma studio
+Run the development server:
+npm run dev
+
+Then open:
+http://localhost:3000
