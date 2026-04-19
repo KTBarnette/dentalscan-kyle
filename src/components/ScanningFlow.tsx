@@ -20,7 +20,11 @@ export default function ScanningFlow() {
   const [message, setMessage] = useState("");
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [messageStatus, setMessageStatus] = useState<"idle" | "success" | "error">("idle");
-  const guardrailState: "good" | "warning" | "bad" = camReady ? "good" : "warning";
+  const guardrailStates: Array<"bad" | "warning" | "good"> = ["bad", "warning", "good"];
+  const [guardrailStateIndex, setGuardrailStateIndex] = useState(0);
+  const guardrailState: "good" | "warning" | "bad" = camReady
+    ? guardrailStates[guardrailStateIndex]
+    : "warning";
   const guardrailBorderColor =
     guardrailState === "good"
       ? "border-green-400"
@@ -62,6 +66,20 @@ export default function ScanningFlow() {
     }
     startCamera();
   }, []);
+
+  useEffect(() => {
+    if (!camReady) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setGuardrailStateIndex((prevIndex) => (prevIndex + 1) % guardrailStates.length);
+    }, 2500);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [camReady, guardrailStates.length]);
 
   const handleCapture = useCallback(() => {
     // Boilerplate logic for capturing a frame from the video feed
@@ -124,13 +142,13 @@ export default function ScanningFlow() {
       <div className="relative w-full max-w-md aspect-[3/4] bg-zinc-950 overflow-hidden flex items-center justify-center">
         {currentStep < 5 ? (
           <>
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              playsInline 
-              className="w-full h-full object-cover grayscale opacity-80" 
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="w-full h-full object-cover grayscale opacity-80"
             />
-            
+
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
               <div
                 className={`relative h-52 w-52 sm:h-60 sm:w-60 md:h-72 md:w-72 rounded-full ${guardrailScaleClass} transition-all duration-300`}
@@ -173,7 +191,7 @@ export default function ScanningFlow() {
             className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-transform"
           >
             <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center">
-               <Camera className="text-black" />
+              <Camera className="text-black" />
             </div>
           </button>
         )}
@@ -182,14 +200,14 @@ export default function ScanningFlow() {
       {/* Thumbnails */}
       <div className="flex gap-2 p-4 overflow-x-auto w-full">
         {VIEWS.map((v, i) => (
-          <div 
-            key={i} 
+          <div
+            key={i}
             className={`w-16 h-20 rounded border-2 shrink-0 ${i === currentStep ? 'border-blue-500 bg-blue-500/10' : 'border-zinc-800'}`}
           >
             {capturedImages[i] ? (
-               <img src={capturedImages[i]} className="w-full h-full object-cover" />
+              <img src={capturedImages[i]} className="w-full h-full object-cover" />
             ) : (
-               <div className="w-full h-full flex items-center justify-center text-[10px] text-zinc-700">{i+1}</div>
+              <div className="w-full h-full flex items-center justify-center text-[10px] text-zinc-700">{i + 1}</div>
             )}
           </div>
         ))}
