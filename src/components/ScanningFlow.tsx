@@ -27,10 +27,10 @@ export default function ScanningFlow() {
   const guardrailScaleClass = guardrailState === "good" ? "scale-100" : "scale-95";
   const guardrailInstructionText =
     guardrailState === "good"
-      ? "Hold steady"
+      ? "Hold steady — capturing soon"
       : guardrailState === "warning"
-        ? "Adjust your position"
-        : "Move closer and center your face";
+        ? "Center your face and hold steady"
+        : "Move closer and align your face within the circle";
 
   const VIEWS = [
     { label: "Front View", instruction: "Smile and look straight at the camera." },
@@ -99,7 +99,9 @@ export default function ScanningFlow() {
             </div>
 
             <div className="absolute bottom-24 left-0 right-0 text-center pointer-events-none">
-              <p className="text-white text-sm opacity-80">{guardrailInstructionText}</p>
+              <p className="text-white text-sm opacity-80 transition-all duration-300">
+                {guardrailInstructionText}
+              </p>
             </div>
 
             {/* Instruction Overlay */}
